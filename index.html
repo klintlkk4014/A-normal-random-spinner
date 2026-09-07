@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>1～31 號 資處1仁 轉盤</title>
+	<style>
+		:root {
+			--ink: #17232d;
+			--muted: #64717a;
+			--paper: #f7f3ea;
+			--accent: #ef6f51;
+			--accent-dark: #c94d36;
+			--gold: #f5bd4d;
+			--line: rgba(23, 35, 45, 0.12);
+		}
+
+		* { box-sizing: border-box; }
+
+		body {
+			min-height: 100vh;
+			margin: 0;
+			color: var(--ink);
+			background:
+				radial-gradient(circle at 12% 12%, rgba(245, 189, 77, 0.28), transparent 28%),
+				radial-gradient(circle at 88% 86%, rgba(239, 111, 81, 0.18), transparent 30%),
+				var(--paper);
+			font-family: Georgia, "Noto Serif TC", serif;
+		}
+
+		main {
+			width: min(1080px, calc(100% - 36px));
+			min-height: 100vh;
+			margin: 0 auto;
+			padding: 54px 0 42px;
+			display: grid;
+			grid-template-columns: minmax(280px, 0.8fr) minmax(320px, 1.2fr);
+			align-items: center;
+			gap: clamp(28px, 6vw, 86px);
+		}
+
+		.intro { max-width: 340px; }
+
+		.eyebrow {
+			margin: 0 0 16px;
+			color: var(--accent-dark);
+			font: 700 0.78rem/1.2 Arial, sans-serif;
+			letter-spacing: 0.18em;
+		}
+
+		h1 {
+			margin: 0;
+			font-size: clamp(3rem, 7vw, 5.8rem);
+			line-height: 0.9;
+			letter-spacing: -0.06em;
+		}
+
+		h1 span {
+			display: block;
+			color: var(--accent);
+			font-size: 0.64em;
+			letter-spacing: -0.04em;
+		}
+
+		.intro p {
+			margin: 28px 0 34px;
+			color: var(--muted);
+			font-size: 1.05rem;
+			line-height: 1.8;
+		}
+
+		.result {
+			min-height: 132px;
+			padding: 19px 22px;
+			border-top: 1px solid var(--line);
+			border-bottom: 1px solid var(--line);
+		}
+
+		.result-label {
+			display: block;
+			color: var(--muted);
+			font: 700 0.72rem/1.2 Arial, sans-serif;
+			letter-spacing: 0.14em;
+		}
+
+		#result {
+			display: block;
+			margin-top: 8px;
+			color: var(--accent-dark);
+			font-size: 3rem;
+			line-height: 1;
+		}
+
+		.wheel-stage {
+			position: relative;
+			width: min(76vw, 620px);
+			justify-self: center;
+			aspect-ratio: 1;
+			display: grid;
+			place-items: center;
+		}
+
+		.wheel-wrap {
+			position: relative;
+			width: 100%;
+			aspect-ratio: 1;
+			padding: 14px;
+			border: 1px solid rgba(23, 35, 45, 0.16);
+			border-radius: 50%;
+			background: #fffdf8;
+			box-shadow: 0 24px 50px rgba(73, 52, 30, 0.16);
+		}
+
+		.wheel {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			border: 5px solid #fffdf8;
+			border-radius: 50%;
+			position: relative;
+			transition: transform 4.8s cubic-bezier(0.12, 0.82, 0.18, 1);
+			background: repeating-conic-gradient(
+				from -5.806deg,
+				#ef6f51 0deg 11.61deg,
+				#f5bd4d 11.61deg 23.22deg,
+				#2e9c91 23.22deg 34.83deg,
+				#324e5c 34.83deg 46.44deg
+			);
+		}
+
+		.number {
+			position: absolute;
+			inset: 0;
+			display: flex;
+			justify-content: center;
+			padding-top: 3.8%;
+			color: #fffdf8;
+			font: 700 clamp(0.7rem, 1.8vw, 1.1rem)/1 Arial, sans-serif;
+			transform: rotate(var(--angle));
+		}
+
+		.number span {
+			display: grid;
+			place-items: center;
+			width: clamp(25px, 5vw, 38px);
+			height: clamp(25px, 5vw, 38px);
+			border: 2px solid rgba(255, 255, 255, 0.85);
+			border-radius: 50%;
+			background: rgba(23, 35, 45, 0.78);
+			text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+			transform: rotate(calc(var(--angle) * -1));
+		}
+
+		.center {
+			position: absolute;
+			z-index: 2;
+			width: 18%;
+			aspect-ratio: 1;
+			display: grid;
+			place-items: center;
+			border: 6px solid #fffdf8;
+			border-radius: 50%;
+			color: #fffdf8;
+			background: var(--ink);
+			box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+			font: 700 clamp(0.55rem, 1.4vw, 0.85rem)/1 Arial, sans-serif;
+			letter-spacing: 0.08em;
+		}
+
+		.pointer {
+			position: absolute;
+			z-index: 3;
+			top: -2px;
+			left: 50%;
+			width: 0;
+			height: 0;
+			border-left: 18px solid transparent;
+			border-right: 18px solid transparent;
+			border-top: 42px solid var(--ink);
+			transform: translateX(-50%);
+			filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.2));
+		}
+
+		.spin-button {
+			position: absolute;
+			z-index: 5;
+			bottom: -22px;
+			left: 50%;
+			min-width: 170px;
+			padding: 15px 24px;
+			border: 0;
+			border-radius: 999px;
+			color: #fffdf8;
+			background: var(--accent);
+			box-shadow: 0 9px 18px rgba(201, 77, 54, 0.28);
+			cursor: pointer;
+			transform: translateX(-50%);
+			font: 700 0.95rem/1 Arial, sans-serif;
+			letter-spacing: 0.12em;
+			transition: transform 160ms ease, background 160ms ease;
+		}
+
+		.spin-button:hover { background: var(--accent-dark); transform: translateX(-50%) translateY(-2px); }
+		.spin-button:active { transform: translateX(-50%) translateY(1px); }
+		.spin-button:disabled { cursor: wait; opacity: 0.7; }
+
+		.hint {
+			margin: 34px 0 0;
+			color: var(--muted);
+			font: 0.75rem/1.5 Arial, sans-serif;
+			letter-spacing: 0.04em;
+		}
+
+		@media (max-width: 720px) {
+			main { grid-template-columns: 1fr; padding-top: 38px; gap: 42px; }
+			.intro { max-width: none; text-align: center; }
+			.intro p { margin: 20px auto 24px; max-width: 390px; }
+			.result { max-width: 300px; margin: 0 auto; text-align: left; }
+			.wheel-stage { width: min(88vw, 500px); }
+			.hint { display: none; }
+		}
+	</style>
+</head>
+<body>
+	<main>
+		<section class="intro" aria-labelledby="title">
+			<p class="eyebrow">-智光商工 資處1仁 抽籤轉盤 / 01—31-</p>
+			<h1 id="title">今天的<br><span>座號</span></h1>
+			<p>隨機抽一位 同學來回答問題</p>
+			<div class="result" aria-live="polite">
+				<span class="result-label">SELECTED NUMBER</span>
+				<strong id="result">準備好了</strong>
+			</div>
+			<p class="hint">也可以直接點擊轉盤開始</p>
+		</section>
+
+		<section class="wheel-stage" aria-label="1 到 31 號轉盤">
+			<div class="pointer" aria-hidden="true"></div>
+			<div class="wheel-wrap">
+				<div class="wheel" id="wheel"></div>
+				<div class="center" aria-hidden="true">SPIN</div>
+				<button class="spin-button" id="spinButton" type="button">開始旋轉</button>
+			</div>
+		</section>
+	</main>
+
+	<script>
+		const wheel = document.querySelector('#wheel');
+		const spinButton = document.querySelector('#spinButton');
+		const result = document.querySelector('#result');
+		const segmentAngle = 360 / 31;
+		let rotation = 0;
+		let isSpinning = false;
+
+		for (let number = 1; number <= 31; number += 1) {
+			const label = document.createElement('div');
+			label.className = 'number';
+			label.style.setProperty('--angle', `${(number - 1) * segmentAngle}deg`);
+			label.innerHTML = `<span>${number}</span>`;
+			wheel.appendChild(label);
+		}
+
+		function spin() {
+			if (isSpinning) return;
+			isSpinning = true;
+			spinButton.disabled = true;
+			result.textContent = '旋轉中...';
+
+			const selectedNumber = Math.floor(Math.random() * 31) + 1;
+			const targetRotation = (360 - (selectedNumber - 1) * segmentAngle) % 360;
+			const currentRotation = ((rotation % 360) + 360) % 360;
+			const adjustment = (targetRotation - currentRotation + 360) % 360;
+			rotation += 360 * (5 + Math.floor(Math.random() * 3)) + adjustment;
+			wheel.style.transform = `rotate(${rotation}deg)`;
+
+			window.setTimeout(() => {
+				result.textContent = `${selectedNumber} 號`;
+				spinButton.disabled = false;
+				isSpinning = false;
+			}, 4900);
+		}
+
+		spinButton.addEventListener('click', spin);
+		wheel.addEventListener('click', spin);
+	</script>
+</body>
+</html>
